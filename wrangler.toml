@@ -1,0 +1,7 @@
+name = "flutek-uptime"
+main = "src/index.js"
+account_id = "fb2d901d2fe5302272ac267eee22764c"
+compatibility_date = "2025-01-01"
+
+[triggers]
+crons = ["*/10 * * * *"]

@@ -1,0 +1,28 @@
+# Free uptime monitor for the two FRANK Render services.
+# Public repo on purpose: scheduled workflows on private personal repos are
+# known to never fire. Nothing secret is used - both endpoints are public.
+name: uptime
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: agent healthz
+        run: curl -fsS --max-time 45 --retry 3 --retry-delay 15 https://flutek-agent.onrender.com/healthz
+      - name: agent api health
+        run: |
+          curl -fsS --max-time 45 --retry 3 --retry-delay 15 https://flutek-agent.onrender.com/api/health | tee /tmp/agent.json
+          grep -q '"ok":true' /tmp/agent.json
+          grep -q '"mode":"live"' /tmp/agent.json
+      - name: inbox healthz
+        run: curl -fsS --max-time 45 --retry 3 --retry-delay 15 https://flutek-inbox.onrender.com/healthz
+      - name: inbox api health
+        run: |
+          curl -fsS --max-time 45 --retry 3 --retry-delay 15 https://flutek-inbox.onrender.com/api/health | tee /tmp/inbox.json
+          grep -q '"ok":true' /tmp/inbox.json
+      - name: flutek.com live
+        run: curl -fsS --max-time 45 -o /dev/null -w "%{http_code}\n" https://flutek.com/
